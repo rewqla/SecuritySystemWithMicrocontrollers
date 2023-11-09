@@ -1,3 +1,7 @@
+#include <SoftwareSerial.h>
+
+SoftwareSerial mySerial(9, 10);
+
 const int pirPin = 3;
 const int trigPin = 5;
 const int echoPin = 2;
@@ -31,6 +35,7 @@ void loop() {
 
     if (cm < securityDistance) {
       Serial.println("Intruder detected! Security alert!");
+      SendMessage();
     } else {
       Serial.println("No intruder within the security range.");
     }
@@ -39,4 +44,22 @@ void loop() {
   }
   
   delay(1000);
+}
+
+void SendMessage(){
+  Serial.println("Send a message");
+  mySerial.println("AT+CSCS=\"UCS2\"");
+  delay(1000);
+  mySerial.println("AT+CMGF=1"); 
+  delay(1000);
+  mySerial.println("AT+CMGS=\"+\""); 
+  delay(1000);
+  mySerial.println("Intruder detected");
+  delay(1000);
+  mySerial.println((char)26); 
+  delay(1000);
+
+  while (mySerial.available()) {
+    Serial.write(mySerial.read());
+  }
 }
