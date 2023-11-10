@@ -2,10 +2,11 @@
 
 SoftwareSerial mySerial(9, 10);
 
-const int pirPin = 3;
+const int pirPin = 7;
 const int trigPin = 5;
 const int echoPin = 2;
 const int securityDistance = 50; 
+long distance = 0;
 
 void setup() {
   Serial.begin(9600);
@@ -15,38 +16,26 @@ void setup() {
 }
 
 void loop() {
-  int currentState = digitalRead(pirPin);
+  calculateDistance();
   
-  if (currentState == HIGH) {
-    Serial.println("Motion detected!");
+  if (distance > 0 && distance < securityDistance) {
+    Serial.println("Object Found");
     
-    digitalWrite(trigPin, LOW);
-    delayMicroseconds(2);
-    digitalWrite(trigPin, HIGH);
-    delayMicroseconds(10);
-    digitalWrite(trigPin, LOW);
-    
-    int duration = pulseIn(echoPin, HIGH);
-    float cm = duration / 58.0;
-    
-    Serial.print("Distance: ");
-    Serial.print(cm);
-    Serial.println(" cm");
+    int currentState = digitalRead(pirPin);
 
-    if (cm < securityDistance) {
-      Serial.println("Intruder detected! Security alert!");
-      SendMessage();
+    if (currentState == HIGH) {          
+       Serial.println("Intruder detected! Security alert!");
+       //SendMessage();
     } else {
       Serial.println("No intruder within the security range.");
     }
   } else {
-    Serial.println("No motion detected.");
+    Serial.println("No Object Found");
   }
-  
   delay(1000);
 }
 
-void SendMessage(){
+void SendMessage() {
   Serial.println("Send a message");
   mySerial.println("AT+CSCS=\"UCS2\"");
   delay(1000);
@@ -62,4 +51,21 @@ void SendMessage(){
   while (mySerial.available()) {
     Serial.write(mySerial.read());
   }
+}
+
+long calculateDistance() {
+  digitalWrite(trigPin, LOW); 
+  delayMicroseconds(2); 
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  
+  int duration = pulseIn(echoPin, HIGH);
+  distance = duration / 58.0;
+
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+
+  return distance;
 }
