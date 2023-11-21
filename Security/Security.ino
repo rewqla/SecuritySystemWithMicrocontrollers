@@ -1,10 +1,7 @@
-#include <SoftwareSerial.h>
-
-SoftwareSerial mySerial(9, 10);
-
 const int pirPin = 7;
 const int trigPin = 5;
 const int echoPin = 2;
+const int buzzer = 9;
 const int securityDistance = 50; 
 long distance = 0;
 
@@ -13,10 +10,11 @@ void setup() {
   pinMode(pirPin, INPUT);
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
+  pinMode(buzzer, OUTPUT);
 }
 
 void loop() {
-  calculateDistance();
+  distance = calculateDistance();
   
   if (distance > 0 && distance < securityDistance) {
     Serial.println("Object Found");
@@ -25,7 +23,13 @@ void loop() {
 
     if (currentState == HIGH) {          
        Serial.println("Intruder detected! Security alert!");
-       //SendMessage();
+       for (int i = 0;i<5;i++){
+        playTone(122, 200);  
+        delay(200);          
+  
+        playTone(250, 200); 
+        delay(200);
+       }
     } else {
       Serial.println("No intruder within the security range.");
     }
@@ -33,24 +37,6 @@ void loop() {
     Serial.println("No Object Found");
   }
   delay(1000);
-}
-
-void SendMessage() {
-  Serial.println("Send a message");
-  mySerial.println("AT+CSCS=\"UCS2\"");
-  delay(1000);
-  mySerial.println("AT+CMGF=1"); 
-  delay(1000);
-  mySerial.println("AT+CMGS=\"+\""); 
-  delay(1000);
-  mySerial.println("Intruder detected");
-  delay(1000);
-  mySerial.println((char)26); 
-  delay(1000);
-
-  while (mySerial.available()) {
-    Serial.write(mySerial.read());
-  }
 }
 
 long calculateDistance() {
@@ -68,4 +54,9 @@ long calculateDistance() {
   Serial.println(" cm");
 
   return distance;
+}
+
+void playTone(int frequency, int duration) {
+  tone(buzzer, frequency, duration);  
+  delay(duration + 20);                   
 }
