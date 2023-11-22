@@ -1,7 +1,9 @@
-const int pirPin = 7;
-const int trigPin = 5;
 const int echoPin = 2;
+const int trigPin = 5;
+const int pirPin = 7;
 const int buzzer = 9;
+const int vibrationPin = 11;
+
 const int securityDistance = 50; 
 long distance = 0;
 
@@ -11,6 +13,7 @@ void setup() {
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
   pinMode(buzzer, OUTPUT);
+  pinMode(vibrationPin, INPUT);
 }
 
 void loop() {
@@ -20,8 +23,9 @@ void loop() {
     Serial.println("Object Found");
     
     int currentState = digitalRead(pirPin);
-
-    if (currentState == HIGH) {          
+    int vibrationValue = digitalRead(vibrationPin);
+    
+    if (currentState == HIGH || vibrationValue == HIGH) {          
        Serial.println("Intruder detected! Security alert!");
        for (int i = 0;i<5;i++){
         playTone(122, 200);  
