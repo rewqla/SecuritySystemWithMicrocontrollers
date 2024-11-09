@@ -1,8 +1,8 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 
-const char* ssid = "";
-const char* password = "";
+const char* ssid = "MERCUSYS_770A";
+const char* password = "oleh76moha";
 
 const char* serverName = "https://dummyjson.com/users/1";
 
