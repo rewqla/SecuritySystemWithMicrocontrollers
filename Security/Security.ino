@@ -21,12 +21,20 @@ void loop() {
   
   if (distance > 0 && distance < securityDistance) {
     Serial.println("Object Found");
-    
+
     int currentState = digitalRead(pirPin);
     int vibrationValue = digitalRead(vibrationPin);
-    
-    if (currentState == HIGH || vibrationValue == HIGH) {          
+
+    if (currentState == HIGH || vibrationValue == HIGH) {  
        Serial.println("Intruder detected! Security alert!");
+       
+       if (currentState == HIGH) {
+        Serial.println("Motion sensor detected the intruder.");
+       }
+       else{
+        Serial.println("Vibration sensor detected the intruder.");
+       }
+       
        for (int i = 0;i<5;i++){
         playTone(122, 200);  
         delay(200);          

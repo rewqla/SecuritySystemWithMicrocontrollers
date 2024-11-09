@@ -1,4 +1,4 @@
-const int vibrationPin = 6; // Connect the SW-520D signal pin to digital pin 2
+const int vibrationPin = 11; // Connect the SW-520D signal pin to digital pin 2
 
 void setup() {
   Serial.begin(9600);
@@ -14,5 +14,5 @@ void loop() {
     Serial.println("No vibration");
   }
 
-  delay(200); // Adjust the delay as needed
+  delay(500); // Adjust the delay as needed
 }
