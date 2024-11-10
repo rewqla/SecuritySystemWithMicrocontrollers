@@ -21,7 +21,7 @@ const users = [
 
 let configurations = [{
     userId: 1,
-    serialNumber: '51170740-312f-4c81-bc33-997c220cba83',
+    serialNumber: '51170740-312f-4c81-bc33-997c220cba832',
     enabledDevices: ['buzzer'],
     startTime: '13:48',
     endTime: '13:51'
