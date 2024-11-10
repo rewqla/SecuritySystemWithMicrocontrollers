@@ -75,11 +75,15 @@ app.post('/register', (req, res) => {
 });
 
 app.get('/api/configuration', (req, res) => {
-    const configuration = {
-        text: "config text"
-    };
+    const { serialNumber } = req.query;
 
-    res.json(configuration);
+    const configuration = configurations.find(config => config.serialNumber === serialNumber);
+
+    if (configuration) {
+        res.json(configuration);
+    } else {
+        res.status(404).json({ message: "Configuration not found" });
+    }
 });
 
 app.post('/submit-cabinet', (req, res) => {
