@@ -19,6 +19,14 @@ const users = [
     { userId: 1, username: 'admin', password: '1234' }
 ];
 
+let configurations = [{
+    userId: 1,
+    serialNumber: '51170740-312f-4c81-bc33-997c220cba83',
+    enabledDevices: ['buzzer'],
+    startTime: '13:48',
+    endTime: '13:51'
+}];
+
 app.get('/', (req, res) => {
     res.render('login', { messages: [] });
 });
@@ -31,7 +39,7 @@ app.get('/cabinet', (req, res) => {
         return res.redirect('/');
     }
 
-    const userConfig = configurations[req.session.userId] || {};
+    const userConfig = configurations[req.session.userId - 1] || {};
 
     console.log(userConfig)
     console.log("----------------")
@@ -74,17 +82,13 @@ app.get('/api/configuration', (req, res) => {
     res.json(configuration);
 });
 
-let configurations = [];
-
 app.post('/submit-cabinet', (req, res) => {
     if (!req.session.userId) {
         return res.redirect('/');
     }
 
     const { serialNumber, enabledDevices, startTime, endTime } = req.body;
-    console.log(req.body)
-    console.log(serialNumber)
-    const enabledDevicesArray = Array.isArray(enabledDevices) ? enabledDevices : [enabledDevices];
+    const enabledDevicesArray = Array.isArray(enabledDevices) ? enabledDevices : (enabledDevices === undefined ? [] : [enabledDevices]);
 
     const userConfig = {
         userId: req.session.userId,
@@ -93,9 +97,8 @@ app.post('/submit-cabinet', (req, res) => {
         startTime: startTime,
         endTime: endTime
     };
-    console.log(userConfig)
     configurations[req.session.userId] = userConfig;
-    console.log(configurations)
+
     res.render('cabinet', { config: userConfig, message: 'Configuration saved successfully!' });
 });
 
