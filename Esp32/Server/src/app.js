@@ -41,10 +41,6 @@ app.get('/cabinet', (req, res) => {
 
     const userConfig = configurations[req.session.userId - 1] || {};
 
-    console.log(userConfig)
-    console.log("----------------")
-    console.log(configurations)
-
     res.render('cabinet', { config: userConfig, message: "" });
 });
 
@@ -76,6 +72,8 @@ app.post('/register', (req, res) => {
 
 app.get('/api/configuration', (req, res) => {
     const { serialNumber } = req.query;
+
+    console.log("Received serial number" + serialNumber)
 
     const configuration = configurations.find(config => config.serialNumber === serialNumber);
 

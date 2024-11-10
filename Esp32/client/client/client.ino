@@ -4,7 +4,10 @@
 const char* ssid = "";
 const char* password = "";
 
-const char* serverName = "https://dummyjson.com/users/1";
+const char* serverName = "http://192.168.1.102:3000";
+const char* configEndpoint = "/api/configuration";
+
+const char* serialNumber = "51170740-312f-4c81-bc33-997c220cba83";
 
 void setup() {
   Serial.begin(115200);
@@ -23,7 +26,9 @@ void loop() {
   if (WiFi.status() == WL_CONNECTED) {  
     HTTPClient http;
 
-    http.begin("https://dummyjson.com/users/1");
+    String url = String(serverName) + String(configEndpoint) + "?serialNumber="+ String(serialNumber);
+  Serial.println(url);
+    http.begin(url);
 
     int httpResponseCode = http.GET();
 
@@ -38,5 +43,5 @@ void loop() {
     http.end(); 
   }
 
-  delay(1000); 
+  delay(10000); 
 }
