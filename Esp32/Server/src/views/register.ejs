@@ -13,18 +13,27 @@
         <div class="login-box">
             <h2>Create an Account</h2>
             <p>Please fill in the details to register</p>
-            <form action="/register" method="POST">
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" name="username" required>
+            <% if (messages.length> 0) { %>
+                <div class="error-messages">
+                    <% messages.forEach(function(message) { %>
+                        <div class="error-message">
+                            <%= message %>
+                        </div>
+                        <% }); %>
                 </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required>
-                </div>
-                <button type="submit">Register</button>
-            </form>
-            <p class="footer-text">Already have an account? <a href="/">Login here</a></p>
+                <% } %>
+                    <form action="/register" method="POST">
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" id="username" name="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" name="password" required>
+                        </div>
+                        <button type="submit">Register</button>
+                    </form>
+                    <p class="footer-text">Already have an account? <a href="/">Login here</a></p>
         </div>
     </div>
 </body>

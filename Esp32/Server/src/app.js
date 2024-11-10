@@ -13,10 +13,10 @@ const users = [
 ];
 
 app.get('/', (req, res) => {
-    res.render('login');
+    res.render('login', { messages: [] });
 });
 app.get('/register', (req, res) => {
-    res.render('register');
+    res.render('register', { messages: [] });
 });
 
 app.get('/cabinet', (req, res) => {
@@ -25,12 +25,12 @@ app.get('/cabinet', (req, res) => {
 
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
-    console.log(users)
+
     const user = users.find(user => user.username === username && user.password === password);
     if (user) {
         res.redirect('/cabinet');
     } else {
-        res.send('Invalid credentials');
+        res.render('login', { messages: ['Invalid credentials'] });
     }
 });
 
@@ -39,11 +39,11 @@ app.post('/register', (req, res) => {
 
     const existingUser = users.find(user => user.username === username);
     if (existingUser) {
-        return res.send('Username already exists. Please choose another one.');
+        res.render('register', { messages: ['Username already exists. Please choose another one.'] });
     }
 
     users.push({ username, password });
-    res.send('Registration successful! You can now <a href="/">login</a>.');
+    res.render('login', { messages: ['Registration successful! You can now log in.'] });
 });
 
 app.get('/api/configuration', (req, res) => {
