@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const session = require('express-session');
 const app = express();
 const port = 3000;
 
@@ -8,8 +9,14 @@ app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 
+app.use(session({
+    secret: 'secret-key',
+    resave: false,
+    saveUninitialized: true
+}));
+
 const users = [
-    { username: 'admin', password: '1234' }
+    { userId: 1, username: 'admin', password: '1234' }
 ];
 
 app.get('/', (req, res) => {
@@ -20,7 +27,17 @@ app.get('/register', (req, res) => {
 });
 
 app.get('/cabinet', (req, res) => {
-    res.render('cabinet');
+    if (!req.session.userId) {
+        return res.redirect('/');
+    }
+
+    const userConfig = configurations[req.session.userId] || {};
+
+    console.log(userConfig)
+    console.log("----------------")
+    console.log(configurations)
+
+    res.render('cabinet', { config: userConfig, message: "" });
 });
 
 app.post('/login', (req, res) => {
@@ -28,6 +45,7 @@ app.post('/login', (req, res) => {
 
     const user = users.find(user => user.username === username && user.password === password);
     if (user) {
+        req.session.userId = user.userId;
         res.redirect('/cabinet');
     } else {
         res.render('login', { messages: ['Invalid credentials'] });
@@ -42,7 +60,9 @@ app.post('/register', (req, res) => {
         res.render('register', { messages: ['Username already exists. Please choose another one.'] });
     }
 
-    users.push({ username, password });
+    const newUserId = users.length + 1;
+    users.push({ userId: newUserId, username, password });
+
     res.render('login', { messages: ['Registration successful! You can now log in.'] });
 });
 
@@ -53,6 +73,32 @@ app.get('/api/configuration', (req, res) => {
 
     res.json(configuration);
 });
+
+let configurations = [];
+
+app.post('/submit-cabinet', (req, res) => {
+    if (!req.session.userId) {
+        return res.redirect('/');
+    }
+
+    const { serialNumber, enabledDevices, startTime, endTime } = req.body;
+    console.log(req.body)
+    console.log(serialNumber)
+    const enabledDevicesArray = Array.isArray(enabledDevices) ? enabledDevices : [enabledDevices];
+
+    const userConfig = {
+        userId: req.session.userId,
+        serialNumber: serialNumber,
+        enabledDevices: enabledDevicesArray,
+        startTime: startTime,
+        endTime: endTime
+    };
+    console.log(userConfig)
+    configurations[req.session.userId] = userConfig;
+    console.log(configurations)
+    res.render('cabinet', { config: userConfig, message: 'Configuration saved successfully!' });
+});
+
 
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);

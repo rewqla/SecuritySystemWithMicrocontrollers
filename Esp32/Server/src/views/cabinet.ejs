@@ -13,35 +13,54 @@
     <div class="cabinet-container">
         <div class="cabinet-box">
             <h2>Cabinet</h2>
-            <form action="/submit-cabinet" method="POST">
-                <div class="form-group">
-                    <label for="serial-number">Serial Number</label>
-                    <input type="text" id="serial-number" name="serial-number"
-                        value="9d0a0086-c162-4208-a4a7-199f5d091a81" required>
-                </div>
 
-                <div class="form-group">
-                    <label for="enabled-devices"> Devices</label><br>
-                    <label class="checkbox-label"><input type="checkbox" name="enabled-devices" value="device1">
-                        Buzzer</label><br>
-                    <label class="checkbox-label"><input type="checkbox" name="enabled-devices" value="device2">
-                        Distance sensor</label><br>
-                    <label class="checkbox-label"><input type="checkbox" name="enabled-devices" value="device3"> Passive
-                        infrared sensor</label><br>
+            <% if (message) { %>
+                <div class="message">
+                    <p>
+                        <%= message %>
+                    </p>
                 </div>
+                <% } %>
 
-                <div class="form-group">
-                    <label for="start-time">Start Time</label>
-                    <input type="time" id="start-time" name="start-time" required>
-                </div>
+                    <form action="/submit-cabinet" method="POST">
+                        <div class="form-group">
+                            <label for="serialNumber">Serial Number</label>
+                            <input type="text" id="serialNumber" name="serialNumber"
+                                value="<%= config.serialNumber || '' %>" required>
+                        </div>
 
-                <div class="form-group">
-                    <label for="end-time">End Time</label>
-                    <input type="time" id="end-time" name="end-time" required>
-                </div>
+                        <div class="form-group">
+                            <label for="enabledDevices">Devices</label><br>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="enabledDevices" value="buzzer" <%=config.enabledDevices &&
+                                    config.enabledDevices.includes('buzzer') ? 'checked' : '' %> >
+                                Buzzer
+                            </label><br>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="enabledDevices" value="distance" <%=config.enabledDevices
+                                    && config.enabledDevices.includes('distance') ? 'checked' : '' %> >
+                                Distance sensor
+                            </label><br>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="enabledDevices" value="infrared" <%=config.enabledDevices
+                                    && config.enabledDevices.includes('infrared') ? 'checked' : '' %> >
+                                Passive infrared sensor
+                            </label><br>
+                        </div>
 
-                <button type="submit">Submit</button>
-            </form>
+                        <div class="form-group">
+                            <label for="startTime">Start Time</label>
+                            <input type="time" id="startTime" name="startTime" value="<%= config.startTime || '' %>"
+                                required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="endTime">End Time</label>
+                            <input type="time" id="endTime" name="endTime" value="<%= config.endTime || '' %>" required>
+                        </div>
+
+                        <button type="submit">Submit</button>
+                    </form>
         </div>
     </div>
 
