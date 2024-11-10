@@ -102,6 +102,14 @@ app.post('/submit-cabinet', (req, res) => {
     res.render('cabinet', { config: userConfig, message: 'Configuration saved successfully!' });
 });
 
+app.get('/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            return res.redirect('/cabinet');
+        }
+        res.redirect('/');
+    });
+});
 
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
