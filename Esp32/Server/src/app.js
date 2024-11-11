@@ -21,7 +21,7 @@ const users = [
 
 let configurations = [{
     userId: 1,
-    serialNumber: '51170740-312f-4c81-bc33-997c220cba832',
+    serialNumber: '51170740-312f-4c81-bc33-997c220cba83',
     enabledDevices: ['buzzer'],
     startTime: '13:48',
     endTime: '13:51'
@@ -73,7 +73,7 @@ app.post('/register', (req, res) => {
 app.get('/api/configuration', (req, res) => {
     const { serialNumber } = req.query;
 
-    console.log("Received serial number" + serialNumber)
+    console.log("Received serial number " + serialNumber)
 
     const configuration = configurations.find(config => config.serialNumber === serialNumber);
 
