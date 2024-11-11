@@ -2,8 +2,8 @@
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 
-const char* ssid = "";
-const char* password = "";
+const char* ssid = "MERCUSYS_770A";
+const char* password = "oleh76moha";
 
 const char* serverName = "http://192.168.1.102:3000";
 const char* configEndpoint = "/api/configuration";
@@ -13,15 +13,15 @@ bool isLegalDevice = false;
 
 String startTime;
 String endTime;
-String enabledDevices[10]; 
-int enabledDevicesCount=0;
+String enabledDevices[10];
+int enabledDevicesCount = 0;
 
 void setup() {
   Serial.begin(115200);
   delay(3000);
   WiFi.begin(ssid, password);
   Serial.println("Starting the program");
-  
+
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
     Serial.println("Connecting to Wi-Fi...");
@@ -32,27 +32,34 @@ void setup() {
 }
 
 void loop() {
+  if (isDeviceEnabled("distance")) {
+    Serial.println("Distance sensor is enabled");
+  }
 
-  delay(10000);  
+  if (isDeviceEnabled("infrared")) {
+    Serial.println("Infrared sensor is enabled");
+  }
+
+  delay(10000);
 }
 
 void initRequest() {
-  if (WiFi.status() == WL_CONNECTED) {  
-    Serial.println("Getting configuration for the "+ String(serialNumber));
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("Getting configuration for the " + String(serialNumber));
     HTTPClient http;
     String url = String(serverName) + String(configEndpoint) + "?serialNumber=" + String(serialNumber);
     Serial.println("Requesting URL: " + url);
 
-    http.begin(url); 
-    int httpResponseCode = http.GET(); 
-    
+    http.begin(url);
+    int httpResponseCode = http.GET();
+
     if (httpResponseCode > 0) {
       if (httpResponseCode == 200) {
         isLegalDevice = true;
         String response = http.getString();
         Serial.println("Retrieved configuration: " + response);
 
-         parseConfigurationResponse(response); 
+        parseConfigurationResponse(response);
       } else if (httpResponseCode == 404) {
         Serial.println("Error 404: Invalid serial number");
       } else {
@@ -69,8 +76,8 @@ void initRequest() {
 }
 
 void parseConfigurationResponse(String response) {
-  StaticJsonDocument<512> doc;  
-  
+  StaticJsonDocument<512> doc;
+
   DeserializationError error = deserializeJson(doc, response);
   if (error) {
     Serial.print("JSON deserialization failed: ");
@@ -83,16 +90,25 @@ void parseConfigurationResponse(String response) {
 
   JsonArray enabledDevicesR = doc["enabledDevices"];
   for (String device : enabledDevicesR) {
-      enabledDevices[enabledDevicesCount] = device;
-      enabledDevicesCount++;
+    enabledDevices[enabledDevicesCount] = device;
+    enabledDevicesCount++;
   }
 
   Serial.println("Parsed Configuration:");
   Serial.println("Start Time: " + endTime);
   Serial.println("End Time: " + endTime);
-  
+
   Serial.println("Enabled Devices:");
   for (int i = 0; i < enabledDevicesCount; i++) {
     Serial.println(enabledDevices[i] + "  ");
   }
+}
+
+bool isDeviceEnabled(String deviceName) {
+  for (int i = 0; i < enabledDevicesCount; i++) {
+    if (enabledDevices[i] == deviceName) {
+      return true;
+    }
+  }
+  return false;
 }

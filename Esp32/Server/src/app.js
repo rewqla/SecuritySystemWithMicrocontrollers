@@ -74,7 +74,7 @@ app.get('/api/configuration', (req, res) => {
     const { serialNumber } = req.query;
 
     console.log("Received serial number " + serialNumber)
-
+    console.log(configurations)
     const configuration = configurations.find(config => config.serialNumber === serialNumber);
 
     if (configuration) {
@@ -99,7 +99,7 @@ app.post('/submit-cabinet', (req, res) => {
         startTime: startTime,
         endTime: endTime
     };
-    configurations[req.session.userId] = userConfig;
+    configurations[req.session.userId - 1] = userConfig;
 
     res.render('cabinet', { config: userConfig, message: 'Configuration saved successfully!' });
 });
