@@ -2,10 +2,13 @@
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 
-const char* ssid = "MERCUSYS_770A";
-const char* password = "oleh76moha";
+const char* ssid = "";
+const char* password = "";
 
-const char* serverName = "http://192.168.1.102:3000";
+const int echoPin = 2;
+const int trigPin = 4;
+
+const char* serverName = "http://192.168.1.104:3000";
 const char* configEndpoint = "/api/configuration";
 
 const char* serialNumber = "51170740-312f-4c81-bc33-997c220cba83";
@@ -29,18 +32,35 @@ void setup() {
   Serial.println("Connected to Wi-Fi");
 
   initRequest();
+
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
 }
 
 void loop() {
-  if (isDeviceEnabled("distance")) {
+    //float distance = getDistance();
+    //Serial.println("Distance: " + String(distance) + " cm");
+    
+   if (isDeviceEnabled("distance")) {
     Serial.println("Distance sensor is enabled");
+
+    float distance = getDistance();
+    Serial.println("Distance: " + String(distance) + " cm");
+    
+    if (isDeviceEnabled("buzzer")) {
+      Serial.println("bzzzzzzzzzzzzzz");
+    }
   }
 
   if (isDeviceEnabled("infrared")) {
     Serial.println("Infrared sensor is enabled");
+    
+    if (isDeviceEnabled("buzzer")) {
+      Serial.println("bzzzzzzzzzzzzzz");
+    }
   }
 
-  delay(10000);
+  delay(1000);
 }
 
 void initRequest() {
@@ -111,4 +131,19 @@ bool isDeviceEnabled(String deviceName) {
     }
   }
   return false;
+}
+
+float getDistance() {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  long duration = pulseIn(echoPin, HIGH);
+
+  float distance = duration / 58.0;
+
+  return distance;
 }
