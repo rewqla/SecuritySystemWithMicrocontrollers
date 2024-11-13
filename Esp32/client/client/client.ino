@@ -18,6 +18,7 @@ bool isLegalDevice = false;
 
 String startTime;
 String endTime;
+int distanceThreshold = 30;
 String enabledDevices[10];
 int enabledDevicesCount = 0;
 
@@ -50,9 +51,8 @@ void loop() {
 
     float distance = getDistance();
     Serial.println("Distance: " + String(distance) + " cm");
-    
-    if (isDeviceEnabled("buzzer")) {
-      Serial.println("Sound");
+
+    if (distance <= distanceThreshold && isDeviceEnabled("buzzer")) {
       playAlertTone();
     }
   }
@@ -61,7 +61,6 @@ void loop() {
     checkMotion();
     
     if (isDeviceEnabled("buzzer")) {
-      Serial.println("Sound");
       playAlertTone();
     }
   }
@@ -113,7 +112,8 @@ void parseConfigurationResponse(String response) {
 
   startTime = doc["startTime"].as<String>();
   endTime = doc["endTime"].as<String>();
-
+  distanceThreshold = doc["distanceThreshold"].as<int>();
+  
   JsonArray enabledDevicesR = doc["enabledDevices"];
   for (String device : enabledDevicesR) {
     enabledDevices[enabledDevicesCount] = device;
@@ -123,7 +123,8 @@ void parseConfigurationResponse(String response) {
   Serial.println("Parsed Configuration:");
   Serial.println("Start Time: " + endTime);
   Serial.println("End Time: " + endTime);
-
+  Serial.println("Distance threshold: " + distanceThreshold);
+  
   Serial.println("Enabled Devices:");
   for (int i = 0; i < enabledDevicesCount; i++) {
     Serial.println(enabledDevices[i] + "  ");
@@ -165,7 +166,6 @@ void checkMotion(){
 }
 
 void playAlertTone(){
-  Serial.println("111");
   playTone(1000, 200);  
   delay(200);          
   
@@ -174,7 +174,6 @@ void playAlertTone(){
 }
 
 void playTone(int frequency, int duration) {
-        Serial.println("222");
   tone(buzzerPin, frequency, duration);  
   delay(duration + 20);                   
 }

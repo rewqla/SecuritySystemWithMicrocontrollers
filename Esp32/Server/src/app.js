@@ -23,6 +23,7 @@ let configurations = [{
     userId: 1,
     serialNumber: '51170740-312f-4c81-bc33-997c220cba83',
     enabledDevices: ['buzzer'],
+    distanceThreshold: 30,
     startTime: '13:48',
     endTime: '13:51'
 }];
@@ -43,6 +44,15 @@ app.get('/cabinet', (req, res) => {
 
     res.render('cabinet', { config: userConfig, message: "" });
 });
+
+app.get('/history', (req, res) => {
+    if (!req.session.userId) {
+        return res.redirect('/');
+    }
+
+    res.render('history');
+});
+
 
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
@@ -89,13 +99,14 @@ app.post('/submit-cabinet', (req, res) => {
         return res.redirect('/');
     }
 
-    const { serialNumber, enabledDevices, startTime, endTime } = req.body;
+    const { serialNumber, enabledDevices, startTime, endTime, distanceThreshold } = req.body;
     const enabledDevicesArray = Array.isArray(enabledDevices) ? enabledDevices : (enabledDevices === undefined ? [] : [enabledDevices]);
 
     const userConfig = {
         userId: req.session.userId,
         serialNumber: serialNumber,
         enabledDevices: enabledDevicesArray,
+        distanceThreshold: distanceThreshold,
         startTime: startTime,
         endTime: endTime
     };
