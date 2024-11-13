@@ -8,8 +8,9 @@ const char* password = "oleh76moha";
 const int echoPin = 2;
 const int trigPin = 4;
 const int pirPin = 5;
+const int buzzerPin = 22;
 
-const char* serverName = "http://192.168.1.104:3000";
+const char* serverName = "http://192.168.1.102:3000";
 const char* configEndpoint = "/api/configuration";
 
 const char* serialNumber = "51170740-312f-4c81-bc33-997c220cba83";
@@ -37,6 +38,7 @@ void setup() {
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
   pinMode(pirPin, INPUT);
+  pinMode(buzzerPin, OUTPUT);
 }
 
 void loop() {
@@ -50,7 +52,8 @@ void loop() {
     Serial.println("Distance: " + String(distance) + " cm");
     
     if (isDeviceEnabled("buzzer")) {
-      Serial.println("bzzzzzzzzzzzzzz");
+      Serial.println("Sound");
+      playAlertTone();
     }
   }
 
@@ -58,7 +61,8 @@ void loop() {
     checkMotion();
     
     if (isDeviceEnabled("buzzer")) {
-      Serial.println("bzzzzzzzzzzzzzz");
+      Serial.println("Sound");
+      playAlertTone();
     }
   }
 
@@ -158,4 +162,19 @@ void checkMotion(){
   } else {
     Serial.println("No motion detected");
   }
+}
+
+void playAlertTone(){
+  Serial.println("111");
+  playTone(1000, 200);  
+  delay(200);          
+  
+  playTone(250, 200); 
+  delay(200);
+}
+
+void playTone(int frequency, int duration) {
+        Serial.println("222");
+  tone(buzzerPin, frequency, duration);  
+  delay(duration + 20);                   
 }
