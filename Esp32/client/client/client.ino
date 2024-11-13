@@ -1,6 +1,7 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
+#include <time.h>
 
 const char* ssid = "MERCUSYS_770A";
 const char* password = "oleh76moha";
@@ -40,11 +41,33 @@ void setup() {
   pinMode(echoPin, INPUT);
   pinMode(pirPin, INPUT);
   pinMode(buzzerPin, OUTPUT);
+
+  configTime(0, 0, "pool.ntp.org");
 }
 
 void loop() {
-    //float distance = getDistance();
-    //Serial.println("Distance: " + String(distance) + " cm");
+ struct tm timeinfo;
+  if (!getLocalTime(&timeinfo)) {
+    Serial.println("Failed to obtain time");
+    return;
+  }
+
+ timeinfo.tm_hour += 2;  // Add 2 hours for UTC +2 time zone
+  if (timeinfo.tm_hour >= 24) {  // If hour exceeds 24, adjust the date
+    timeinfo.tm_hour -= 24;
+  }
+
+  int currentHour = timeinfo.tm_hour;
+  int currentMinute = timeinfo.tm_min;
+  int currentTimeInMinutes = currentHour * 60 + currentMinute;
+
+  int startTimeInMinutes = getTimeInMinutes(startTime);
+  int endTimeInMinutes = getTimeInMinutes(endTime);
+
+  // Print the time for debugging
+  Serial.println("Current Time: " + String(currentTimeInMinutes) + " minutes");
+  Serial.println("Start Time: " + String(startTimeInMinutes) + " minutes");
+  Serial.println("End Time: " + String(endTimeInMinutes) + " minutes");
     
    if (isDeviceEnabled("distance")) {
     Serial.println("Distance sensor is enabled");
@@ -66,6 +89,12 @@ void loop() {
   }
 
   delay(1000);
+}
+
+int getTimeInMinutes(String time) {
+  int hour = time.substring(0, 2).toInt();
+  int minute = time.substring(3, 5).toInt();
+  return hour * 60 + minute;  
 }
 
 void initRequest() {
