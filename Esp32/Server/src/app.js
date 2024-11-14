@@ -99,7 +99,7 @@ app.post('/submit-cabinet', (req, res) => {
         return res.redirect('/');
     }
 
-    const { serialNumber, enabledDevices, startTime, endTime, distanceThreshold } = req.body;
+    const { serialNumber, enabledDevices, startTime, endTime, distanceThresholdc } = req.body;
     const enabledDevicesArray = Array.isArray(enabledDevices) ? enabledDevices : (enabledDevices === undefined ? [] : [enabledDevices]);
 
     const userConfig = {
