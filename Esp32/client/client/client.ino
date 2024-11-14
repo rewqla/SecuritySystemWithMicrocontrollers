@@ -3,8 +3,8 @@
 #include <ArduinoJson.h>
 #include <time.h>
 
-const char* ssid = "";
-const char* password = "";
+const char* ssid = "MERCUSYS_770A";
+const char* password = "oleh76moha";
 
 const int echoPin = 2;
 const int trigPin = 4;
@@ -13,12 +13,14 @@ const int buzzerPin = 22;
 
 const char* serverName = "http://192.168.1.102:3000";
 const char* configEndpoint = "/api/configuration";
+const char* historyEndpoint = "/api/history";
 
 const char* serialNumber = "51170740-312f-4c81-bc33-997c220cba83";
 bool isLegalDevice = false;
 
 String startTime;
 String endTime;
+String userId;
 int distanceThreshold = 30;
 String enabledDevices[10];
 int enabledDevicesCount = 0;
@@ -52,7 +54,7 @@ void loop() {
     return;
   }
 
- timeinfo.tm_hour += 2; 
+  timeinfo.tm_hour += 2; 
   if (timeinfo.tm_hour >= 24) { 
     timeinfo.tm_hour -= 24;
   }
@@ -64,32 +66,35 @@ void loop() {
   int startTimeInMinutes = getTimeInMinutes(startTime);
   int endTimeInMinutes = getTimeInMinutes(endTime);
 
-  Serial.println("Current Time: " + String(currentTimeInMinutes) + " minutes");
-  Serial.println("Start Time: " + String(startTimeInMinutes) + " minutes");
-  Serial.println("End Time: " + String(endTimeInMinutes) + " minutes");
-      if (currentTimeInMinutes >= startTimeInMinutes && currentTimeInMinutes <= endTimeInMinutes) {
-    Serial.println("Within active time range.");
-   if (isDeviceEnabled("distance")) {
-    Serial.println("Distance sensor is enabled");
+  //Serial.println("Current time: "+ String(currentTimeInMinutes));
 
-    float distance = getDistance();
-    Serial.println("Distance: " + String(distance) + " cm");
-
-    if (distance <= distanceThreshold && isDeviceEnabled("buzzer")) {
-      playAlertTone();
+  if (currentTimeInMinutes >= startTimeInMinutes && currentTimeInMinutes <= endTimeInMinutes) {
+    if (isDeviceEnabled("distance")) {
+      float distance = getDistance();
+      Serial.println("Distance: " + String(distance) + " cm");
+              
+      if (distance <= distanceThreshold) {   
+        sendHistoryData("Distance", "Someone at the " + String(distance) + " cm" );
+        if (isDeviceEnabled("buzzer")) {   
+          playAlertTone();
+          sendHistoryData("Buzzer", "Activated due to proximity threshold");
+        }
+      }
     }
-  }
 
-  if (isDeviceEnabled("infrared")) {
-    checkMotion();
-    
-    if (isDeviceEnabled("buzzer")) {
-      playAlertTone();
+    if (isDeviceEnabled("infrared")) {
+      if (checkMotion()) {
+        sendHistoryData("Infrared", "There is motion");
+        if (isDeviceEnabled("buzzer")) {   
+          playAlertTone();  
+          sendHistoryData("Buzzer", "Activated due to motion detection"); 
+        }
+      }
     }
-  }
   } else {
     Serial.println("Outside of active time range.");
-  }
+  } 
+  
   delay(1000);
 }
 
@@ -104,7 +109,6 @@ void initRequest() {
     Serial.println("Getting configuration for the " + String(serialNumber));
     HTTPClient http;
     String url = String(serverName) + String(configEndpoint) + "?serialNumber=" + String(serialNumber);
-    Serial.println("Requesting URL: " + url);
 
     http.begin(url);
     int httpResponseCode = http.GET();
@@ -144,7 +148,8 @@ void parseConfigurationResponse(String response) {
   startTime = doc["startTime"].as<String>();
   endTime = doc["endTime"].as<String>();
   distanceThreshold = doc["distanceThreshold"].as<int>();
-  
+  userId = doc["userId"].as<int>();
+   
   JsonArray enabledDevicesR = doc["enabledDevices"];
   for (String device : enabledDevicesR) {
     enabledDevices[enabledDevicesCount] = device;
@@ -152,8 +157,9 @@ void parseConfigurationResponse(String response) {
   }
 
   Serial.println("Parsed Configuration:");
-  Serial.println("Start Time: " + endTime);
+  Serial.println("Start Time: " + startTime);
   Serial.println("End Time: " + endTime);
+  Serial.println("User id: " + userId);
   Serial.println("Distance threshold: " + distanceThreshold);
   
   Serial.println("Enabled Devices:");
@@ -186,13 +192,15 @@ float getDistance() {
   return distance;
 }
 
-void checkMotion(){
+bool checkMotion(){
   int currentState = digitalRead(pirPin);
 
   if (currentState == HIGH) {
       Serial.println("Motion detected");
+      return true;
   } else {
     Serial.println("No motion detected");
+    return false;
   }
 }
 
@@ -207,4 +215,55 @@ void playAlertTone(){
 void playTone(int frequency, int duration) {
   tone(buzzerPin, frequency, duration);  
   delay(duration + 20);                   
+}
+
+void sendHistoryData(String deviceName, String metadata) {
+  if (WiFi.status() == WL_CONNECTED) {
+    HTTPClient http;
+    
+    StaticJsonDocument<512> jsonDoc;
+    jsonDoc["userId"] = userId;
+    jsonDoc["deviceName"] = deviceName;
+    jsonDoc["time"] = getCurrentTime();
+    jsonDoc["metadata"] = metadata;
+  
+    String jsonData;
+    serializeJson(jsonDoc, jsonData);  
+
+    Serial.println("JSON Data to send: " + jsonData);
+  
+    String url = String(serverName) + String(historyEndpoint);
+    http.begin(url);
+    http.addHeader("Content-Type", "application/json");
+
+    int httpResponseCode = http.POST(jsonData);
+
+    if (httpResponseCode > 0) {
+      String response = http.getString();
+      Serial.println("History sent successfully: " + response);
+    } else {
+      Serial.println("Error sending history: " + String(httpResponseCode));
+    }
+
+    http.end();
+  } else {
+    Serial.println("Error: Not connected to Wi-Fi");
+  }
+}
+
+String getCurrentTime() {
+  struct tm timeinfo;
+  if (!getLocalTime(&timeinfo)) {
+    Serial.println("Failed to obtain time");
+    return "unknown";
+  }
+
+  timeinfo.tm_hour += 2; 
+  if (timeinfo.tm_hour >= 24) { 
+    timeinfo.tm_hour -= 24;
+  }
+
+  char timeStr[20];
+  strftime(timeStr, sizeof(timeStr), "%H:%M", &timeinfo);
+  return String(timeStr);
 }
