@@ -3,8 +3,8 @@
 #include <ArduinoJson.h>
 #include <time.h>
 
-const char* ssid = "MERCUSYS_770A";
-const char* password = "oleh76moha";
+const char* ssid = "";
+const char* password = "";
 
 const int echoPin = 2;
 const int trigPin = 4;
@@ -46,14 +46,14 @@ void setup() {
 }
 
 void loop() {
- struct tm timeinfo;
+  struct tm timeinfo;
   if (!getLocalTime(&timeinfo)) {
     Serial.println("Failed to obtain time");
     return;
   }
 
- timeinfo.tm_hour += 2;  // Add 2 hours for UTC +2 time zone
-  if (timeinfo.tm_hour >= 24) {  // If hour exceeds 24, adjust the date
+ timeinfo.tm_hour += 2; 
+  if (timeinfo.tm_hour >= 24) { 
     timeinfo.tm_hour -= 24;
   }
 
@@ -64,11 +64,11 @@ void loop() {
   int startTimeInMinutes = getTimeInMinutes(startTime);
   int endTimeInMinutes = getTimeInMinutes(endTime);
 
-  // Print the time for debugging
   Serial.println("Current Time: " + String(currentTimeInMinutes) + " minutes");
   Serial.println("Start Time: " + String(startTimeInMinutes) + " minutes");
   Serial.println("End Time: " + String(endTimeInMinutes) + " minutes");
-    
+      if (currentTimeInMinutes >= startTimeInMinutes && currentTimeInMinutes <= endTimeInMinutes) {
+    Serial.println("Within active time range.");
    if (isDeviceEnabled("distance")) {
     Serial.println("Distance sensor is enabled");
 
@@ -87,7 +87,9 @@ void loop() {
       playAlertTone();
     }
   }
-
+  } else {
+    Serial.println("Outside of active time range.");
+  }
   delay(1000);
 }
 

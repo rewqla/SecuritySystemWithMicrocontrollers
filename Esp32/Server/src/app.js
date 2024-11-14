@@ -28,6 +28,21 @@ let configurations = [{
     endTime: '13:51'
 }];
 
+let historyLogs = [
+    {
+        userId: 1,
+        deviceName: "Buzzer",
+        time: "13:49",
+        metadata: "Activated due to proximity threshold"
+    },
+    {
+        userId: 1,
+        deviceName: "Distance Sensor",
+        time: "13:49",
+        metadata: "Detected object at 25 cm"
+    }
+];
+
 app.get('/', (req, res) => {
     res.render('login', { messages: [] });
 });
@@ -50,7 +65,8 @@ app.get('/history', (req, res) => {
         return res.redirect('/');
     }
 
-    res.render('history');
+    const userHistory = historyLogs.filter(log => log.userId === req.session.userId);
+    res.render('history', { history: userHistory });
 });
 
 
