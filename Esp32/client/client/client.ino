@@ -3,8 +3,8 @@
 #include <ArduinoJson.h>
 #include <time.h>
 
-const char* ssid = "MERCUSYS_770A";
-const char* password = "oleh76moha";
+const char* ssid = "";
+const char* password = "";
 
 const int echoPin = 2;
 const int trigPin = 4;
@@ -74,21 +74,21 @@ void loop() {
       Serial.println("Distance: " + String(distance) + " cm");
               
       if (distance <= distanceThreshold) {   
-        sendHistoryData("Distance", "Someone at the " + String(distance) + " cm" );
         if (isDeviceEnabled("buzzer")) {   
           playAlertTone();
           sendHistoryData("Buzzer", "Activated due to proximity threshold");
         }
+        sendHistoryData("Distance", "Someone at the " + String(distance) + " cm" );
       }
     }
 
     if (isDeviceEnabled("infrared")) {
-      if (checkMotion()) {
-        sendHistoryData("Infrared", "There is motion");
+      if (checkMotion()) {       
         if (isDeviceEnabled("buzzer")) {   
           playAlertTone();  
           sendHistoryData("Buzzer", "Activated due to motion detection"); 
         }
+        sendHistoryData("Infrared", "There is motion");
       }
     }
   } else {
@@ -258,11 +258,11 @@ String getCurrentTime() {
     return "unknown";
   }
 
-  timeinfo.tm_hour += 2; 
-  if (timeinfo.tm_hour >= 24) { 
+  timeinfo.tm_hour += 2;
+   if (timeinfo.tm_hour >= 24) {
     timeinfo.tm_hour -= 24;
   }
-
+  
   char timeStr[20];
   strftime(timeStr, sizeof(timeStr), "%H:%M", &timeinfo);
   return String(timeStr);
