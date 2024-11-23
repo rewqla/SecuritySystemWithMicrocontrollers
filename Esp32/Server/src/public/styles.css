@@ -220,7 +220,7 @@ a {
   text-align: center;
 }
 
-a:hover {
+#logout:hover {
   background-color: #dc3545;
   color: white;
 }

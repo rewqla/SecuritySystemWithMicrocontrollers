@@ -84,17 +84,18 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/register', (req, res) => {
+    console.log(req)
     const { username, password } = req.body;
 
     const existingUser = users.find(user => user.username === username);
     if (existingUser) {
-        res.render('register', { messages: ['Username already exists. Please choose another one.'] });
+        return res.render('register', { messages: ['Username already exists. Please choose another one.'] });
     }
 
     const newUserId = users.length + 1;
     users.push({ userId: newUserId, username, password });
 
-    res.render('login', { messages: ['Registration successful! You can now log in.'] });
+    return res.render('login', { messages: ['Registration successful! You can now log in.'] });
 });
 
 app.get('/api/configuration', (req, res) => {

@@ -3,8 +3,8 @@
 #include <ArduinoJson.h>
 #include <time.h>
 
-const char* ssid = "";
-const char* password = "";
+const char* ssid = "MERCUSYS_770A";
+const char* password = "oleh76moha";
 
 const int echoPin = 2;
 const int trigPin = 4;
